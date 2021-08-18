@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "180701408001",
+    "project_id": "parkinson-behavior-app",
+    "storage_bucket": "parkinson-behavior-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:180701408001:android:61806933139750866b0900",
+        "android_client_info": {
+          "package_name": "com.example.parkinsons_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "180701408001-f352th8prflqakucq18god8bi40pm17t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoIyDAcj09eQZhc9UPE7WhuKf9yDQvUGk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "180701408001-f352th8prflqakucq18god8bi40pm17t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
