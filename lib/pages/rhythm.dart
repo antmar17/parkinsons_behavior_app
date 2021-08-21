@@ -11,6 +11,13 @@ class Rhythm extends StatefulWidget {
 }
 
 class _RhythmState extends State<Rhythm> {
+  late Size screenSize;
+  GlobalKey leftKey = GlobalKey();
+  GlobalKey rightKey = GlobalKey();
+
+  Offset? leftButtonPosition;
+  Offset? rightButtonPosition;
+
   AuthService _authService = AuthService();
   int _amountPressed = 0;
   double _totalDistance = 0.0;
@@ -33,6 +40,119 @@ class _RhythmState extends State<Rhythm> {
   //controls visibility of timers
   double _readyTimerOpacity = 0.0;
   double _countDownOpacity = 0.0;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    screenSize = MediaQuery.of(context).size;
+    return new Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Rhythm game!",
+          style: TextStyle(fontSize: 15.0),
+        ),
+        centerTitle: true,
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Center(
+              child: Container(
+                  padding:
+                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
+                  child: Text("Press start to start the game",
+                      style: TextStyle(fontSize: 15.0)))),
+          Center(
+              child: Container(
+                  child: Text("Tap the buttons when they turn red!",
+                      style: TextStyle(fontSize: 15.0)))),
+          Container(
+              padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
+              child: Opacity(
+                  opacity: _countDownOpacity,
+                  child:
+                      Text("Time Left", style: TextStyle(fontSize: 20.0)))),
+          Container(
+              padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
+              child: Opacity(
+                  opacity: _countDownOpacity,
+                  child: Text("$_countDownCurrent",
+                      style: TextStyle(fontSize: 20.0)))),
+          Divider(
+            height: 90.0,
+            color: Colors.grey,
+          ),
+          Opacity(
+              opacity: _readyTimerOpacity,
+              child: Text(
+                "Get Ready! " + " $_readyTimerCurrent",
+                style: TextStyle(fontSize: 20.0),
+              )),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[buildLeftButton(), buildRightButton()],
+          ),
+          Divider(
+            height: 90.0,
+            color: Colors.grey,
+          ),
+          Center(
+              child: Container(
+                  padding:
+                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
+                  child: ElevatedButton(
+                      onPressed: () {
+                        if (!(_countdownCommenced) && !(_gamesCommenced)) {
+                          startReadyTimer();
+                        }
+                      },
+                      child: Text("Start Test")))),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+            Container(
+                padding:
+                    EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                child: Text("Score", style: TextStyle(fontSize: 15.0))),
+            Container(
+                padding:
+                    EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                child: Text("Total Pixels from center",
+                    style: TextStyle(fontSize: 15.0))),
+          ]),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+            Container(
+                padding:
+                    EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                child: Text("$_amountPressed",
+                    style: TextStyle(fontSize: 15.0))),
+            Container(
+                padding:
+                    EdgeInsets.symmetric(vertical: 10.0, horizontal: 40.0),
+                child: Text("$_totalDistance",
+                    style: TextStyle(fontSize: 15.0))),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  void getPositions() {
+    RenderBox? lbox = leftKey.currentContext!.findRenderObject() as RenderBox?;
+    leftButtonPosition = lbox!.localToGlobal(Offset.zero);
+
+    RenderBox? rbox = rightKey.currentContext!.findRenderObject() as RenderBox?;
+    rightButtonPosition = rbox!.localToGlobal(Offset.zero);
+
+    print(
+        "LEFT BUTTON x: ${leftButtonPosition!.dx} , y: ${leftButtonPosition!.dy}");
+    print(
+        "RIGHT BUTTON x: ${rightButtonPosition!.dx} , y: ${rightButtonPosition!.dy}");
+  }
 
   /**
    * Starts countdown timer to  when start test is pressed, when countdown reaches zero the game timer starts
@@ -94,37 +214,42 @@ class _RhythmState extends State<Rhythm> {
 
       //send up to firebase firestore
       DataBaseService(uid: _authService.getCurrentUser().uid).updateUserRythmGame(_amountPressed, _totalDistance);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You have completed the Rythm game good job!")));
+      Navigator.pop(context);
       sub.cancel();
     });
   }
 
-  _onTapDownLeft(TapDownDetails details) {
-    var x = details.globalPosition.dx;
-    var y = details.globalPosition.dy;
-    // or user the local position method to get the offset
-    print(details.localPosition);
-    //   print("tap down " + x.toString() + ", " + y.toString());
-    print("distance to center: " +
-        pixelsToCenter(
-                details.localPosition.dx, details.localPosition.dy, 45.0, 45.0)
-            .toString());
-    if(_gamesCommenced && _leftActivated) {
-      _totalDistance+=pixelsToCenter(details.localPosition.dx, details.localPosition.dy, 45.0, 45.0);
-    }
-  }
+  void _onTapDown(TapDownDetails details) {
+    if (_gamesCommenced) {
+      if (_leftActivated) {
+        setState(() {
+          RenderBox? lbox =
+              leftKey.currentContext!.findRenderObject() as RenderBox?;
+          leftButtonPosition = lbox!.localToGlobal(Offset.zero);
+          double distance = pixelsToCenter(
+              details.globalPosition.dx,
+              details.globalPosition.dy,
+              leftButtonPosition!.dx + lbox.size.width / 2,
+              leftButtonPosition!.dy + lbox.size.height / 2);
+          _totalDistance += distance;
+          print("DISTANCE TO CENTER: $distance");
+        });
+      } else {
+        setState(() {
+          RenderBox? rbox =
+              rightKey.currentContext!.findRenderObject() as RenderBox?;
+          rightButtonPosition = rbox!.localToGlobal(Offset.zero);
+          double distance = pixelsToCenter(
+              details.globalPosition.dx,
+              details.globalPosition.dy,
+              rightButtonPosition!.dx + rbox.size.width / 2,
+              rightButtonPosition!.dy + rbox.size.height / 2);
+          _totalDistance += distance;
 
-  _onTapDownRight(TapDownDetails details) {
-    var x = details.globalPosition.dx;
-    var y = details.globalPosition.dy;
-    // or user the local position method to get the offset
-    print(details.localPosition);
-    //   print("tap down " + x.toString() + ", " + y.toString());
-    print("distance to center: " +
-        pixelsToCenter(
-            details.localPosition.dx, details.localPosition.dy, 45.0, 45.0)
-            .toString());
-    if(_gamesCommenced && _rightActivated) {
-      _totalDistance+=pixelsToCenter(details.localPosition.dx, details.localPosition.dy, 45.0, 45.0);
+          print("DISTANCE TO CENTER:$distance");
+        });
+      }
     }
   }
 
@@ -139,153 +264,87 @@ class _RhythmState extends State<Rhythm> {
     return (touchX - centerX).abs() + (touchY - centerY).abs();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    return new Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Rhythm game!",
-          style: TextStyle(fontSize: 15.0),
+
+  Widget buildRightButton() {
+    return Container(
+      key: rightKey,
+      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 40.0),
+      child: GestureDetector(
+        onTapDown: (TapDownDetails details) {
+          setState(() {
+            _onTapDown(details);
+            if (_rightActivated) {
+              _rightActivated = !(_rightActivated);
+              _leftActivated = !(_leftActivated);
+              _amountPressed += 1;
+            }
+          });
+        },
+        onTertiaryTapDown: (TapDownDetails details) {
+          setState(() {
+            _onTapDown(details);
+            if (_rightActivated) {
+              _rightActivated = !(_rightActivated);
+              _leftActivated = !(_leftActivated);
+              _amountPressed += 1;
+            }
+          });
+        },
+        child: CircleAvatar(
+          backgroundColor:
+              (_rightActivated && _gamesCommenced && !(_leftActivated))
+                  ? Colors.red
+                  : Colors.blue,
+          radius: 45,
+          child: Center(
+            child: CircleAvatar(
+              backgroundColor: Colors.white,
+              radius: 10,
+            ),
+          ),
         ),
-        centerTitle: true,
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Center(
-              child: Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
-                  child: Text("Press start to start the game",
-                      style: TextStyle(fontSize: 15.0)))),
-          Center(
-              child: Container(
-                  child: Text("Tap the buttons when they turn red!",
-                      style: TextStyle(fontSize: 15.0)))),
-          Container(
-              padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
-              child: Opacity(
-                  opacity: _countDownOpacity,
-                  child: Text("Time Left", style: TextStyle(fontSize: 20.0)))),
-          Container(
-              padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
-              child: Opacity(
-                  opacity: _countDownOpacity,
-                  child: Text("$_countDownCurrent",
-                      style: TextStyle(fontSize: 20.0)))),
-          Divider(
-            height: 90.0,
-            color: Colors.grey,
+    );
+  }
+
+  Widget buildLeftButton() {
+    return Container(
+      key: leftKey,
+      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 40.0),
+      child: GestureDetector(
+        onTapDown: (TapDownDetails details) {
+          setState(() {
+            _onTapDown(details);
+            if (_leftActivated) {
+              _rightActivated = !(_rightActivated);
+              _leftActivated = !(_leftActivated);
+              _amountPressed += 1;
+            }
+          });
+        },
+        onTertiaryTapDown: (TapDownDetails details) {
+          setState(() {
+            _onTapDown(details);
+            if (_leftActivated) {
+              _rightActivated = !(_rightActivated);
+              _leftActivated = !(_leftActivated);
+              _amountPressed += 1;
+            }
+          });
+        },
+        child: CircleAvatar(
+          backgroundColor:
+              (_leftActivated && _gamesCommenced && !(_rightActivated))
+                  ? Colors.red
+                  : Colors.blue,
+          radius: 45,
+          child: Center(
+            child: CircleAvatar(
+              backgroundColor: Colors.white,
+              radius: 10,
+            ),
           ),
-          Opacity(
-              opacity: _readyTimerOpacity,
-              child: Text(
-                "Get Ready! " + " $_readyTimerCurrent",
-                style: TextStyle(fontSize: 20.0),
-              )),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 40.0),
-                child: GestureDetector(
-                  onTap: () => print('tapped!'),
-                  onTapDown: (TapDownDetails details) => _onTapDownLeft(details),
-                  child: ClipOval(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          if (_leftActivated) {
-                            _rightActivated = !(_rightActivated);
-                            _leftActivated = !(_leftActivated);
-                            _amountPressed += 1;
-                          }
-                        });
-                      },
-                      child: Center(child:CircleAvatar(
-                        backgroundColor: Colors.white,
-                        radius: 10,
-                      )),
-                      style: ElevatedButton.styleFrom(
-                          primary: (_leftActivated &&
-                                  _gamesCommenced &&
-                                  !(_rightActivated))
-                              ? Colors.red
-                              : Colors.blue,
-                          minimumSize: Size(90.0, 90.0)),
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 40.0),
-                child: GestureDetector(
-                  onTap: () => print('tapped!'),
-                  onTapDown: (TapDownDetails details) => _onTapDownRight(details),
-                  child: ClipOval(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          if (_rightActivated) {
-                            _leftActivated = !(_leftActivated);
-                            _rightActivated = !(_rightActivated);
-                            _amountPressed += 1;
-                          }
-                        });
-                      },
-                      child: Center(child:CircleAvatar(
-                        backgroundColor: Colors.white,
-                        radius:10
-                      )),
-                      style: ElevatedButton.styleFrom(
-                          primary: (_rightActivated &&
-                                  _gamesCommenced &&
-                                  !(_leftActivated))
-                              ? Colors.red
-                              : Colors.blue,
-                          minimumSize: Size(90.0, 90.0)),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Divider(
-            height: 90.0,
-            color: Colors.grey,
-          ),
-          Center(
-              child: Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
-                  child: ElevatedButton(
-                      onPressed: () {
-                        if (!(_countdownCommenced) && !(_gamesCommenced)) {
-                          startReadyTimer();
-                        }
-                      },
-                      child: Text("Start Test")))),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-            Container(
-                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                child: Text("Score", style: TextStyle(fontSize: 15.0))),
-            Container(
-                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                child: Text("Total Pixels from center",
-                    style: TextStyle(fontSize: 15.0))),
-          ]),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-            Container(
-                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                child:
-                    Text("$_amountPressed", style: TextStyle(fontSize: 15.0))),
-            Container(
-                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 40.0),
-                child:
-                    Text("$_totalDistance", style: TextStyle(fontSize: 15.0))),
-          ]),
-        ],
+        ),
       ),
     );
   }

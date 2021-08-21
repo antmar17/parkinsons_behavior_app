@@ -35,6 +35,7 @@ class _HomeState extends State<Home> {
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text("Choose a test",style: TextStyle(fontSize: 15.0)),
 

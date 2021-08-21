@@ -48,7 +48,7 @@ class AuthService {
       await DataBaseService(uid:user!.uid).updateUserData(email, password);
       return _userModelFromFirebaseUser(user);
     } catch (e) {
-      print(e.toString());
+      print("EXCEPTION BBBBB ${e.toString()}");
       return null;
     }
   }

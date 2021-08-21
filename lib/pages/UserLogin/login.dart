@@ -21,7 +21,6 @@ class _LoginState extends State<Login> {
 
     @override
     Widget build(BuildContext context) {
-      print(Crypt.sha256("pass123").toString());
       Size screenSize = MediaQuery.of(context).size;
       return Scaffold(
         body: SafeArea(
@@ -152,6 +151,7 @@ class _LoginState extends State<Login> {
             parent.setState(() {
               error = "Could not sign in with your credentials";
               print("error signing in");
+              print("RESULT: ${result.toString()}");
             });
 
           }
