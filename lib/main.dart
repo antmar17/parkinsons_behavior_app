@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:parkinsons_app/pages/AuditoryMemoryTest/AuditorMemory.dart';
 import 'package:parkinsons_app/pages/AuditoryMemoryTest/AuditoryDifficulty.dart';
 import 'package:parkinsons_app/pages/RecordActivity.dart';
-import 'package:parkinsons_app/pages/RecordMenu.dart';
+import 'package:parkinsons_app/pages/TremorTest/Tremor.dart';
+import 'package:parkinsons_app/pages/VoiceRecordingTest/recordmenu.dart';
+import 'package:parkinsons_app/pages/RhythmTest/RhythmIntro.dart';
 import 'package:parkinsons_app/pages/VisualMemoryTest/difficulty.dart';
-import 'package:parkinsons_app/pages/clock.dart';
+import 'package:parkinsons_app/pages/DrawingTest/clock.dart';
+import 'package:parkinsons_app/pages/VoiceRecordingTest/recordmenu.dart';
+import 'package:parkinsons_app/pages/WalkingTest/WalkingMenu.dart';
 import 'package:parkinsons_app/pages/home.dart';
 import 'package:parkinsons_app/pages/VisualMemoryTest/memory.dart';
-import 'package:parkinsons_app/pages/rhythm.dart';
+import 'package:parkinsons_app/pages/RhythmTest/rhythm.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:parkinsons_app/pages/UserLogin/login.dart';
 import 'package:parkinsons_app/pages/UserLogin/signup.dart';
-import 'package:parkinsons_app/pages/walking.dart';
+import 'package:parkinsons_app/pages/WalkingTest/StraightWalking.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,13 +29,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(initialRoute: '/login', routes: {
       '/login': (context) => Login(),
      '/signup': (context) => SignUp(),
+
       '/home': (context) => Home(),
 
-
+      '/rhythmIntro':(context) => RhythmIntro(),
       '/rhythm': (context) => Rhythm(),
 
 
-      '/walking': (context) => Walking(),
+      '/walkingMenu': (context) => WalkingMenu(),
+      '/walking': (context) => StraightWalking(),
 
       '/difficulty': (context) => Difficulty(),
       '/memory1': (context) => Memory(gridDimension: 2),
@@ -55,6 +61,8 @@ class MyApp extends StatelessWidget {
       "/recordauditory5":(context)=>RecordActivity(activityTitle: "Auditory Memory Test 3", instructionText:"Speak clearly and recall the words you just heard" , subInstructionsText: ""),
 
       "/clockdraw":(context) => ClockDraw(),
+
+      '/Tremor':(context) => Tremor()
     });
   }
 }

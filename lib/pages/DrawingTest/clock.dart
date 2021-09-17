@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:parkinsons_app/services/Util.dart';
 import 'package:parkinsons_app/services/auth.dart';
 import 'package:parkinsons_app/services/database.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -21,6 +22,13 @@ class _ClockDrawState extends State<ClockDraw> {
   double strokeWidth = 2.0;
 
   final controller = ScreenshotController();
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    lastMedicineAnswer = "";
+  }
+
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;

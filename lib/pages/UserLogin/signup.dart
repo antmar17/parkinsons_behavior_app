@@ -26,34 +26,36 @@ class _SignUpState extends State<SignUp> {
           ),
           centerTitle: true,
         ),
-        body: SafeArea(
-          child: Container(
-            width: double.infinity,
-            height: screenSize.height,
-            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 50),
-            child: Form(
-              key:_formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    "Sign Up",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Please Enter all Credentials",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  ),
-                  SizedBox(height: 35),
-                  buildName(),
-                  SizedBox(height: 20),
-                  buildEmail(),
-                  SizedBox(height: 20),
-                  buildPassword(),
-                  Text("$error",style: TextStyle(color: Colors.red)),
-                  buildSignUpBtn(context ,this)
-                ],
+        body: SingleChildScrollView(
+          child: SafeArea(
+            child: Container(
+              width: double.infinity,
+              height: screenSize.height,
+              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 50),
+              child: Form(
+                key:_formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Sign Up",
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "Please Enter all Credentials",
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                    ),
+                    SizedBox(height: 35),
+                    buildName(),
+                    SizedBox(height: 20),
+                    buildEmail(),
+                    SizedBox(height: 20),
+                    buildPassword(),
+                    Text("$error",style: TextStyle(color: Colors.red)),
+                    buildSignUpBtn(context ,this)
+                  ],
+                ),
               ),
             ),
           ),

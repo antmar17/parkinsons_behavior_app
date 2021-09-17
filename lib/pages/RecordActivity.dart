@@ -35,6 +35,7 @@ class _RecordActivityState extends State<RecordActivity> {
     // TODO: implement initState
     //recorder.init();
     super.initState();
+    checkPermission();
   }
 
   @override
@@ -123,7 +124,7 @@ class _RecordActivityState extends State<RecordActivity> {
 
 
 
-    /**--- Function for building UI---**/
+    /**--- Functions for building UI---**/
   void onSubmitPressed() async {
     if (recordFilePath != null && File(recordFilePath).existsSync()) {
       //AudioPlayer audioPlayer = AudioPlayer();
@@ -134,6 +135,7 @@ class _RecordActivityState extends State<RecordActivity> {
       DataBaseService(uid: uid).uploadFile(file, widget.activityTitle, ".mp3");
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Recording Submitted!")));
+      Navigator.of(context).pop();
 
     }
   }

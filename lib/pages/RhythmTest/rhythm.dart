@@ -1,11 +1,17 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:parkinsons_app/services/Util.dart';
 import 'package:parkinsons_app/services/auth.dart';
 import 'package:parkinsons_app/services/database.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:quiver/async.dart';
+import 'package:csv/csv.dart';
+import 'dart:io';
 
 class Rhythm extends StatefulWidget {
+
   @override
   _RhythmState createState() => _RhythmState();
 }
@@ -41,12 +47,22 @@ class _RhythmState extends State<Rhythm> {
   double _readyTimerOpacity = 0.0;
   double _countDownOpacity = 0.0;
 
+
+  List<List<dynamic>>?_DataArray = [["TimeStamp","TappedButtonType", "TappedCoordinate", "CoordinateOfLeftButton","CoordinateOfRightButton","PixelsFromTheCenter"]];//this array of arrays will be converted into a csv
   @override
   void initState() {
     // TODO: implement initState
-
     super.initState();
+    checkPermissions();
   }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    lastMedicineAnswer = "";
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +81,7 @@ class _RhythmState extends State<Rhythm> {
           Center(
               child: Container(
                   padding:
-                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
+                  EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
                   child: Text("Press start to start the game",
                       style: TextStyle(fontSize: 15.0)))),
           Center(
@@ -77,7 +93,7 @@ class _RhythmState extends State<Rhythm> {
               child: Opacity(
                   opacity: _countDownOpacity,
                   child:
-                      Text("Time Left", style: TextStyle(fontSize: 20.0)))),
+                  Text("Time Left", style: TextStyle(fontSize: 20.0)))),
           Container(
               padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
               child: Opacity(
@@ -105,7 +121,7 @@ class _RhythmState extends State<Rhythm> {
           Center(
               child: Container(
                   padding:
-                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
+                  EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
                   child: ElevatedButton(
                       onPressed: () {
                         if (!(_countdownCommenced) && !(_gamesCommenced)) {
@@ -116,23 +132,23 @@ class _RhythmState extends State<Rhythm> {
           Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
             Container(
                 padding:
-                    EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                 child: Text("Score", style: TextStyle(fontSize: 15.0))),
             Container(
                 padding:
-                    EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                 child: Text("Total Pixels from center",
                     style: TextStyle(fontSize: 15.0))),
           ]),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
             Container(
                 padding:
-                    EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                 child: Text("$_amountPressed",
                     style: TextStyle(fontSize: 15.0))),
             Container(
                 padding:
-                    EdgeInsets.symmetric(vertical: 10.0, horizontal: 40.0),
+                EdgeInsets.symmetric(vertical: 10.0, horizontal: 40.0),
                 child: Text("$_totalDistance",
                     style: TextStyle(fontSize: 15.0))),
           ]),
@@ -141,6 +157,13 @@ class _RhythmState extends State<Rhythm> {
     );
   }
 
+  Future<bool> checkPermissions() async {
+    final storageStatus = await Permission.storage.request();
+    if ( storageStatus != PermissionStatus.granted) {
+      throw Exception("Permission denied");
+    }
+    return true;
+  }
   void getPositions() {
     RenderBox? lbox = leftKey.currentContext!.findRenderObject() as RenderBox?;
     leftButtonPosition = lbox!.localToGlobal(Offset.zero);
@@ -203,7 +226,7 @@ class _RhythmState extends State<Rhythm> {
       });
     });
 
-    sub.onDone(() {
+    sub.onDone(() async {
       print("Done");
       _countDownOpacity = 0.0;
       _countDownCurrent = 30;
@@ -212,34 +235,57 @@ class _RhythmState extends State<Rhythm> {
       _leftActivated = false;
       _rightActivated = false;
 
-      //send up to firebase firestore
-      DataBaseService(uid: _authService.getCurrentUser().uid).updateUserRythmGame(_amountPressed, _totalDistance);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You have completed the Rythm game good job!")));
-      Navigator.pop(context);
       sub.cancel();
+      //send up to firebase firestore
+      await DataBaseService(uid: _authService.getCurrentUser().uid).updateUserRythmGame(_amountPressed, _totalDistance);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You have completed the Rythm game good job!")));
+      writeDataToCsv();
+      Navigator.pop(context);
     });
   }
 
   void _onTapDown(TapDownDetails details) {
     if (_gamesCommenced) {
+
+      //Find the Coordinants of the buttons
+      RenderBox? lbox = leftKey.currentContext!.findRenderObject() as RenderBox?;
+      leftButtonPosition = lbox!.localToGlobal(Offset.zero);
+
+      RenderBox? rbox = rightKey.currentContext!.findRenderObject() as RenderBox?;
+      rightButtonPosition = rbox!.localToGlobal(Offset.zero);
+
+      String ButtonType = "";
+
       if (_leftActivated) {
         setState(() {
-          RenderBox? lbox =
-              leftKey.currentContext!.findRenderObject() as RenderBox?;
-          leftButtonPosition = lbox!.localToGlobal(Offset.zero);
+
+          //calculate distance from center of active button
           double distance = pixelsToCenter(
               details.globalPosition.dx,
               details.globalPosition.dy,
               leftButtonPosition!.dx + lbox.size.width / 2,
               leftButtonPosition!.dy + lbox.size.height / 2);
           _totalDistance += distance;
+
           print("DISTANCE TO CENTER: $distance");
+
+          //Add Info to DataArray to be turned into csv
+          ButtonType = "LeftButton";
+          List<dynamic> row = [
+            createTimeStamp(),
+            ButtonType,
+            {'x':details.globalPosition.dx,'y':details.globalPosition.dy},
+            {'x': leftButtonPosition!.dx,'y':leftButtonPosition!.dy},
+            {'x': rightButtonPosition!.dx,'y':rightButtonPosition!.dy},
+            distance
+          ];
+          _DataArray!.add(row);
+
         });
       } else {
         setState(() {
-          RenderBox? rbox =
-              rightKey.currentContext!.findRenderObject() as RenderBox?;
-          rightButtonPosition = rbox!.localToGlobal(Offset.zero);
+
+          //calculate distance from center of active button
           double distance = pixelsToCenter(
               details.globalPosition.dx,
               details.globalPosition.dy,
@@ -248,9 +294,42 @@ class _RhythmState extends State<Rhythm> {
           _totalDistance += distance;
 
           print("DISTANCE TO CENTER:$distance");
+
+
+
+          //Add Info to DataArray to be turned into csv
+          ButtonType = "RightButton";
+          List<dynamic> row = [
+            createTimeStamp(),
+            ButtonType,
+            {'x':details.globalPosition.dx,'y':details.globalPosition.dy},
+            {'x': leftButtonPosition!.dx,'y':leftButtonPosition!.dy},
+            {'x': rightButtonPosition!.dx,'y':rightButtonPosition!.dy},
+            distance
+          ];
+          _DataArray!.add(row);
         });
       }
     }
+  }
+
+
+  void writeDataToCsv() async {
+    String csv = const ListToCsvConverter().convert(_DataArray);
+
+    /// Write to a file
+    final directory = await getApplicationDocumentsDirectory();
+    final pathOfTheFileToWrite = directory.path + "/rhythm_test.csv";
+    File file = File(pathOfTheFileToWrite);
+    await file.writeAsString(csv);
+
+    //Upload to firebase
+    String uid = AuthService().getCurrentUser().uid;
+    DataBaseService(uid:uid).uploadFile(file, "Rhythm Test",".csv");
+
+
+    print("written to csv!");
+    print(csv);
   }
 
 

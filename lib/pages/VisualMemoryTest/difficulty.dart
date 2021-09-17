@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:parkinsons_app/services/Util.dart';
 
 class Difficulty extends StatefulWidget {
   @override
@@ -6,6 +7,14 @@ class Difficulty extends StatefulWidget {
 }
 
 class _DifficultyState extends State<Difficulty> {
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    lastMedicineAnswer = "";
+  }
+
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;

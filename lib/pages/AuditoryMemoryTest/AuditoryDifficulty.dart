@@ -1,9 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:parkinsons_app/services/Util.dart';
 import 'package:parkinsons_app/widgets/WideButton.dart';
 
 
-class AuditoryDifficulty extends StatelessWidget {
+class AuditoryDifficulty extends StatefulWidget {
 
+
+  @override
+  _AuditoryDifficultyState createState() => _AuditoryDifficultyState();
+}
+
+class _AuditoryDifficultyState extends State<AuditoryDifficulty> {
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    lastMedicineAnswer = "";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +51,5 @@ class AuditoryDifficulty extends StatelessWidget {
       ),
     );
   }
-
 }
 

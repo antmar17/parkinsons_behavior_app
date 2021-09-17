@@ -1,7 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:parkinsons_app/services/Util.dart';
 import 'package:parkinsons_app/widgets/WideButton.dart';
 
-class RecordMenu extends StatelessWidget {
+class RecordMenu extends StatefulWidget {
+
+  @override
+  _RecordMenuState createState() => _RecordMenuState();
+}
+
+class _RecordMenuState extends State<RecordMenu> {
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    lastMedicineAnswer = "";
+  }
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;

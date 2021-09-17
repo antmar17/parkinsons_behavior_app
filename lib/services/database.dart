@@ -15,41 +15,47 @@ class DataBaseService {
 
   Future updateUserData(String email, String password) async {
     return await userCollection.doc(uid).set({
-      'email': email,
-      'password': Crypt.sha256(password).toString(),
+      'Email': email,
+      'Password': Crypt.sha256(password).toString(),
     });
   }
 
-  Future updateUserRythmGame(int score, double pixelsFromCenter) async {
+  Future updateUserRythmGame( int score, double pixelsFromCenter ) async {
     return await userCollection
         .doc(uid)
-        .collection("RythmGame")
+        .collection("Rhythm Test")
         .doc(createTimeStamp())
-        .set({'score': score, 'pixelsFromCenter': pixelsFromCenter});
+        .set({'Medicine Answer':lastMedicineAnswer,'Score': score, 'Total Pixels From Center': pixelsFromCenter});
   }
 
   Future updateUserMemoryGame(
       int tries, int difficulty, bool gameFinished) async {
     return await userCollection
         .doc(uid)
-        .collection("MemoryGame")
+        .collection("Memory Game")
         .doc(createTimeStamp())
         .set({
-      'tries': tries,
-      'difficulty': difficulty,
-      'gameFinished': gameFinished
+      'Medicine Answer':lastMedicineAnswer,
+      'Tries': tries,
+      'Difficulty': difficulty,
+      'Game Finished': gameFinished
     });
   }
 
-  Future<void> uploadFile(File file,String folderName,String filetype) async {
+  Future uploadFile(File file,String folderName,String filetype) async {
+    String timeStamp = createTimeStamp();
     try {
       await FirebaseStorage.instance
           .ref(uid + '/' + folderName)
-          .child(createTimeStamp()+filetype)
+          .child(timeStamp+filetype)
           .putFile(file);
     } catch (e) {
       print(e);
     }
+    
+    return await userCollection.doc(uid).collection(folderName).doc(timeStamp).set(
+      {'Medicine Answer':lastMedicineAnswer}
+    );
     // e.g, e.code == 'canceled'
   }
 }
