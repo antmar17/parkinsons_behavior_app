@@ -23,14 +23,24 @@ class _TremorState extends State<Tremor> {
   CountdownTimer? _timer = null;
   bool testStarted = false;
 
-
-
-  List<List<dynamic>>?_sensorDataArray = [["TimeStamp","Acc_x","Acc_y","Acc_z","Gyro_x","Gyro_y","Gyro_z","Magnetic_x","Magnetic_y","Magnetic_z"]];//this array of arrays will be converted into a csv
+  List<List<dynamic>>? _sensorDataArray = [
+    [
+      "TimeStamp",
+      "Acc_x",
+      "Acc_y",
+      "Acc_z",
+      "Gyro_x",
+      "Gyro_y",
+      "Gyro_z",
+      "Magnetic_x",
+      "Magnetic_y",
+      "Magnetic_z"
+    ]
+  ]; //this array of arrays will be converted into a csv
   List<double>? _userAccelerometerValues;
   List<double>? _gyroscopeValues;
   List<double>? _magnetometerValues;
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
-
 
   @override
   void initState() {
@@ -55,12 +65,22 @@ class _TremorState extends State<Tremor> {
           child: Column(
             children: [
               buildInstructions(screenSize),
-              SizedBox(height: screenSize.height * 0.025,),
+              SizedBox(
+                height: screenSize.height * 0.025,
+              ),
               buildStartButton(),
-              SizedBox(height: screenSize.height * 0.025,),
-              if(testStarted) Text("Keep Still!",style: TextStyle(fontSize: 20),),
-              if(testStarted) SizedBox(height: screenSize.height * 0.025,),
-              if (testStarted) buildTime() ,
+              SizedBox(
+                height: screenSize.height * 0.025,
+              ),
+              if (testStarted)
+                Text(
+                  "Keep Still!",
+                  style: TextStyle(fontSize: 20),
+                ),
+              SizedBox(
+                height: screenSize.height * 0.025,
+              ),
+              if (testStarted) buildTime(),
             ],
           ),
         ),
@@ -68,23 +88,36 @@ class _TremorState extends State<Tremor> {
     );
   }
 
-
   Future<bool> checkPermissions() async {
     final activityStatus = await Permission.activityRecognition.request();
     final storageStatus = await Permission.storage.request();
-    if (activityStatus != PermissionStatus.granted && storageStatus != PermissionStatus.granted) {
+    if (activityStatus != PermissionStatus.granted &&
+        storageStatus != PermissionStatus.granted) {
       throw Exception("Permission denied");
     }
     return true;
   }
 
-
-  void resetData(){
+  void resetData() {
     //set all member variables to initial state
-    _sensorDataArray = [["TimeStamp","Acc_x","Acc_y","Acc_z","Gyro_x","Gyro_y","Gyro_z","Magnetic_x","Magnetic_y","Magnetic_z"]] ;//this array of arrays will be converted into a csv
+    _sensorDataArray = [
+      [
+        "TimeStamp",
+        "Acc_x",
+        "Acc_y",
+        "Acc_z",
+        "Gyro_x",
+        "Gyro_y",
+        "Gyro_z",
+        "Magnetic_x",
+        "Magnetic_y",
+        "Magnetic_z"
+      ]
+    ]; //this array of arrays will be converted into a csv
   }
-  void updateSensorDataArray(){
-    if(testStarted) {
+
+  void updateSensorDataArray() {
+    if (testStarted) {
       List<dynamic> row = [
         createTimeStamp(),
         _userAccelerometerValues![0],
@@ -101,7 +134,6 @@ class _TremorState extends State<Tremor> {
     }
   }
 
-
   void writeDataToCsv() async {
     String csv = const ListToCsvConverter().convert(_sensorDataArray);
 
@@ -113,9 +145,8 @@ class _TremorState extends State<Tremor> {
 
     //Upload to firebase
     String uid = AuthService().getCurrentUser().uid;
-    await DataBaseService(uid:uid).uploadFile(file, "Tremor Test",".csv");
+    await DataBaseService(uid: uid).uploadFile(file, "Tremor Test", ".csv");
     resetData();
-
   }
 
   void initSensorSate() {
@@ -162,6 +193,7 @@ class _TremorState extends State<Tremor> {
       centerTitle: true,
     );
   }
+
   Widget buildInstructions(Size screenSize) {
     return Column(
       children: [
@@ -182,9 +214,7 @@ class _TremorState extends State<Tremor> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                "1.Press the start button to star the test\n\n" +
-                    "2.Rest your phone on your lap\n\n" +
-                    "3.Stay as still as possible for 30 seconds",
+                "Please sit down with your feet resting flat on the floor, and hold the phone still with your right hand in your lap for 30 seconds",
                 style: TextStyle(fontSize: 15.0),
               ),
             ),
@@ -211,7 +241,8 @@ class _TremorState extends State<Tremor> {
       writeDataToCsv();
       seconds = maxSeconds;
       testStarted = false;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Tremor Test completed!")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Tremor Test completed!")));
     });
   }
 
@@ -238,12 +269,15 @@ class _TremorState extends State<Tremor> {
   }
 
   Widget buildStartButton() {
-    return WideButton(color: Colors.blue, buttonText: "Start test", onPressed: (){
-      if(!testStarted){
-        testStarted = true;
-        startCountDownTimer();
-      }
-    });
+    return WideButton(
+        color: Colors.blue,
+        buttonText: "Start test",
+        onPressed: () {
+          if (!testStarted) {
+            testStarted = true;
+            startCountDownTimer();
+          }
+        });
     //return ElevatedButton(
     //  child: Text("Start Test"),
     //  onPressed: startCountDownTimer,

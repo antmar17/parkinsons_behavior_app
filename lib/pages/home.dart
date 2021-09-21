@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:parkinsons_app/pages/MedicineQuestion.dart';
+import 'package:parkinsons_app/pages/SurveyTest/Survey.dart';
 import 'package:parkinsons_app/services/auth.dart';
 import 'package:parkinsons_app/widgets/WideButton.dart';
 
@@ -84,7 +85,7 @@ class _HomeState extends State<Home> {
                     }),
 
                     WideButton(color: Colors.blue, buttonText: "Survey", onPressed: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => MedicineQuestion(nextActivityRoute: '/clockdraw')));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => Survey()));
                       //Navigator.pushNamed(context, '/clockdraw');
                     }),
 

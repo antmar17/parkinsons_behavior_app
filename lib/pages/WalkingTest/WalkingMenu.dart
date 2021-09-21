@@ -36,7 +36,7 @@ class _WalkingMenuState extends State<WalkingMenu> {
               Navigator.push(context, MaterialPageRoute(builder: (context) => StraightWalking() ));
             }),
             WideButton(color: Colors.blue, buttonText: "Turning Walking Test", onPressed: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => TurnWalking() ));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Turning() ));
             }),
           ]),
         ),

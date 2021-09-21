@@ -15,90 +15,62 @@ import 'package:csv/csv.dart';
 import 'package:quiver/async.dart';
 
 
-class TurnWalking extends StatefulWidget {
+class Turning extends StatefulWidget {
   @override
-  _TurnWalkingState createState() => _TurnWalkingState();
+  _TurningState createState() => _TurningState();
 }
 
-class _TurnWalkingState extends State<TurnWalking> {
-  bool isRecording = false;
-  bool hasTurnedAround = false;
-  bool isDone = false;
-  int stepsTaken = 0;
-  int maxSteps = 40;
-  double counterOpacity= 0.0;
+class _TurningState extends State<Turning> {
+  static const maxSeconds = 30;
+  int seconds = maxSeconds;
+  CountdownTimer? _timer = null;
+  bool testStarted = false;
+
+
+
   List<List<dynamic>>?_sensorDataArray = [["TimeStamp","Acc_x","Acc_y","Acc_z","Gyro_x","Gyro_y","Gyro_z","Magnetic_x","Magnetic_y","Magnetic_z"]];//this array of arrays will be converted into a csv
   List<double>? _userAccelerometerValues;
   List<double>? _gyroscopeValues;
   List<double>? _magnetometerValues;
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
 
-  late Stream<StepCount> _stepCountStream;
-  late Stream<PedestrianStatus> _pedestrianStatusStream;
-  String _status = '?', _steps = '?';
-
-  AudioPlayer? audioPlayer;
-  AudioCache? audioCache;
-  late String localFilePath;
-
-  static const maxSeconds = 30;
-  int seconds = maxSeconds;
-  CountdownTimer? _timer = null;
 
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
+
     checkPermissions();
     initSensorSate();
-    initPlatformState();
-    initAudio();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    for (final subscription in _streamSubscriptions) {
-      subscription.cancel();
-    }
-    lastMedicineAnswer = "";
   }
 
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: buildAppBar(),
       resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          title: Text("Turn Walking Test"),
-          centerTitle: true,
+      body: SafeArea(
+        child: Container(
+          width: double.infinity,
+          height: screenSize.height,
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+          child: Column(
+            children: [
+              buildInstructions(screenSize),
+              SizedBox(height: screenSize.height * 0.025,),
+              buildStartButton(),
+              SizedBox(height: screenSize.height * 0.025,),
+              if(testStarted) Text("Keep Still!",style: TextStyle(fontSize: 20),),
+              if(testStarted) SizedBox(height: screenSize.height * 0.025,),
+              if (testStarted) buildTime() ,
+            ],
+          ),
         ),
-        body: SingleChildScrollView(
-          child: SafeArea(
-              child: Container(
-                width: double.infinity,
-                height: screenSize.height,
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 50),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                        padding:
-                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                        child: Text(
-                          "Instructions",
-                          style: TextStyle(
-                              fontSize: 30.0,
-                              fontWeight: FontWeight.bold,
-                              decoration: TextDecoration.underline),
-                        )),
-                    buildInstructions(screenSize),
-                    buildStartStopButton(),
-                    buildStepCounter()
-                  ],
-                ),
-              )),
-        ));
+      ),
+    );
   }
+
 
   Future<bool> checkPermissions() async {
     final activityStatus = await Permission.activityRecognition.request();
@@ -108,15 +80,14 @@ class _TurnWalkingState extends State<TurnWalking> {
     }
     return true;
   }
+
+
   void resetData(){
     //set all member variables to initial state
-    stepsTaken = 0;
-    counterOpacity = 0.0;
     _sensorDataArray = [["TimeStamp","Acc_x","Acc_y","Acc_z","Gyro_x","Gyro_y","Gyro_z","Magnetic_x","Magnetic_y","Magnetic_z"]] ;//this array of arrays will be converted into a csv
-    hasTurnedAround = false;
   }
   void updateSensorDataArray(){
-    if(isRecording) {
+    if(testStarted) {
       List<dynamic> row = [
         createTimeStamp(),
         _userAccelerometerValues![0],
@@ -133,90 +104,21 @@ class _TurnWalkingState extends State<TurnWalking> {
     }
   }
 
+
   void writeDataToCsv() async {
     String csv = const ListToCsvConverter().convert(_sensorDataArray);
 
     /// Write to a file
     final directory = await getApplicationDocumentsDirectory();
-    final pathOfTheFileToWrite = directory.path + "/walking_test.csv";
+    final pathOfTheFileToWrite = directory.path + "/tremor_test.csv";
     File file = File(pathOfTheFileToWrite);
     await file.writeAsString(csv);
 
     //Upload to firebase
     String uid = AuthService().getCurrentUser().uid;
-    DataBaseService(uid:uid).uploadFile(file, "Turning Walking Test",".csv");
+    await DataBaseService(uid:uid).uploadFile(file, "Tremor Test",".csv");
     resetData();
 
-
-    print("written to csv!");
-    print(csv);
-  }
-
-
-  void startCountDownTimer() {
-    _timer = new CountdownTimer(
-      new Duration(seconds: maxSeconds),
-      new Duration(seconds: 1),
-    );
-
-    // ignore: cancel_subscriptions
-    var sub = _timer!.listen(null);
-    sub.onData((duration) {
-      setState(() {
-        seconds = maxSeconds - duration.elapsed.inSeconds;
-      });
-    });
-    sub.onDone(() {
-      setState(() {
-        audioCache!.play("StartWalkingAgain.mp3");
-        isRecording = true;
-        hasTurnedAround = true;
-      });
-    });
-  }
-
-  /**--- Funcions for Pedometer---**/
-  void onStepCount(StepCount event) {
-
-    _steps = event.steps.toString();
-    setState(() {
-      if (isRecording) {
-        updateSensorDataArray();
-        if(stepsTaken < maxSteps) {
-          if(stepsTaken == 20 && !hasTurnedAround){
-            isRecording = false;
-            audioCache!.play("TurnAround.mp3");
-            startCountDownTimer();
-
-          }
-          else {
-            stepsTaken += 1;
-          }
-        }
-        else {
-          isRecording = false;
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Good Job! Walking data recorded")));
-            writeDataToCsv();
-            audioCache!.play("RecordingFinished.mp3");
-      }
-
-
-      }
-
-    });
-  }
-
-  void initPlatformState() {
-    _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
-    _pedestrianStatusStream
-        .listen(onPedestrianStatusChanged)
-        .onError(onPedestrianStatusError);
-
-    _stepCountStream = Pedometer.stepCountStream;
-    _stepCountStream.listen(onStepCount).onError(onStepCountError);
-
-    if (!mounted) return;
   }
 
   void initSensorSate() {
@@ -229,11 +131,6 @@ class _TurnWalkingState extends State<TurnWalking> {
     _streamSubscriptions.add(
       motionSensors.magnetometer.listen(onMagnetometerEvent),
     );
-  }
-
-  void initAudio(){
-    audioPlayer = AudioPlayer();
-    audioCache = AudioCache(fixedPlayer: audioPlayer);
   }
 
   /**--- Funcions for Sensors---**/
@@ -260,82 +157,97 @@ class _TurnWalkingState extends State<TurnWalking> {
     });
   }
 
-  void onPedestrianStatusChanged(PedestrianStatus event) {
-    setState(() {
-      _status = event.status;
-    });
-  }
+  /**--- Funcions for building UI---**/
 
-  void onPedestrianStatusError(error) {
-    print('onPedestrianStatusError: $error');
-    setState(() {
-      _status = 'Pedestrian Status not available';
-    });
-    print(_status);
+  PreferredSizeWidget buildAppBar() {
+    return AppBar(
+      title: Text("Tremor Test"),
+      centerTitle: true,
+    );
   }
-
-  void onStepCountError(error) {
-    print('onStepCountError: $error');
-    setState(() {
-      _steps = 'Step Count not available';
-    });
-  }
-
-  /**--- Funcions for building the UI---**/
   Widget buildInstructions(Size screenSize) {
-    return Container(
-      decoration: BoxDecoration(
-          shape: BoxShape.rectangle,
-          border: Border.all(color: Colors.black, width: 2.0)),
-      child: SizedBox(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-                "1.Turn up your phone's volume so you can hear the instructions while you are walking\n\n"+
-                "2.Put your smartphone in your pocket and walk straight at least for 20 steps\n\n"+
-                "3.When Instructed, turn around and wait for 30 seconds\n\n"+
-                 "4. When told start walking again for a tleast another 20 steps",
-            style: TextStyle(fontSize: 15.0),
+    return Column(
+      children: [
+        Container(
+            padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+            child: Text(
+              "Instructions",
+              style: TextStyle(
+                  fontSize: 30.0,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline),
+            )),
+        Container(
+          decoration: BoxDecoration(
+              shape: BoxShape.rectangle,
+              border: Border.all(color: Colors.black, width: 2.0)),
+          child: SizedBox(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+              "1) please stand up if you are sitting;",
+                style: TextStyle(fontSize: 15.0),
+              ),
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 
-  void OnStartStopButtonPressed() {
-    setState(() {
-      if (isRecording) {
-        audioCache!.play('RecordingCanceled.mp3');
-        resetData();
+  void startCountDownTimer() {
+    _timer = new CountdownTimer(
+      new Duration(seconds: maxSeconds),
+      new Duration(seconds: 1),
+    );
 
-
-
-      } else {
-        audioCache!.play('RecordingStarted.mp3');
-      }
-
-      isRecording = !isRecording;
+    // ignore: cancel_subscriptions
+    var sub = _timer!.listen(null);
+    sub.onData((duration) {
+      setState(() {
+        seconds = maxSeconds - duration.elapsed.inSeconds;
+      });
+    });
+    sub.onDone(() {
+      writeDataToCsv();
+      seconds = maxSeconds;
+      testStarted = false;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Turning Test completed!")));
     });
   }
 
-  Widget buildStartStopButton() {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: WideButton(
-        color: isRecording ? Colors.red : Colors.blue,
-        buttonText: isRecording ? "Press to Stop" : "Press to Start",
-        onPressed: OnStartStopButtonPressed,
-      ),
+  Widget buildTime() {
+    return SizedBox(
+      width: 100,
+      height: 100,
+      child: Stack(fit: StackFit.expand, children: [
+        CircularProgressIndicator(
+          value: 1 - seconds / maxSeconds,
+          valueColor: AlwaysStoppedAnimation(Colors.grey),
+          strokeWidth: 12,
+          backgroundColor: Colors.greenAccent,
+        ),
+        Center(
+          child: Text(
+            '$seconds',
+            style: TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.black, fontSize: 50),
+          ),
+        ),
+      ]),
     );
   }
 
-  Widget buildStepCounter() {
-    return Opacity(
-      opacity: isRecording ? 1.0 : 0.0 ,
-      child: Container(
-          padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-          child: Text("Steps Taken: " + stepsTaken.toString(),
-              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold))),
-    );
+  Widget buildStartButton() {
+    return WideButton(color: Colors.blue, buttonText: "Start test", onPressed: (){
+      if(!testStarted){
+        testStarted = true;
+        startCountDownTimer();
+      }
+    });
+    //return ElevatedButton(
+    //  child: Text("Start Test"),
+    //  onPressed: startCountDownTimer,
+    //);
   }
 }

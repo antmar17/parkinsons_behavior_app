@@ -41,9 +41,7 @@ class _MedicineQuestionState extends State<MedicineQuestion> {
                 SizedBox(height: screenSize.height * 0.025),
                 buildInstructions(screenSize),
                 SizedBox(height: screenSize.height * 0.025),
-                Divider(
-                  thickness: 2.0,
-                ),
+                Divider(thickness: 2.0,),
                 buildQuestions(),
                 Divider(
                   thickness: 2.0,
@@ -64,15 +62,12 @@ class _MedicineQuestionState extends State<MedicineQuestion> {
         SizedBox(
           height: screenSize.height * 0.025,
         ),
-        Text(
-          "We would like to understand how your performance on this activity could be affected by the timing of your medication.",
-          style: TextStyle(fontSize: 20),
-        ),
+        Text("We would like to understand how your performance on this activity could be affected by the timing of your medication.",style: TextStyle(fontSize: 20.0),),
         SizedBox(
-          height: screenSize.height * 0.05,
+          height: screenSize.height * 0.025,
         ),
         Text(
-          "When did you last take Parkinson's medication?",
+          "When are you preforming this activity?",
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ],
@@ -80,45 +75,52 @@ class _MedicineQuestionState extends State<MedicineQuestion> {
   }
 
   Widget buildQuestions() {
+
+    //choices that the user can pick
+    String choice1 = "Immediately before taking parkinson's medication";
+    String choice2 = "Just after taking Parkinson's medication(at your best)";
+    String choice3 = "Another time";
+    String choice4 = "I don't take Parkinson's medication";
+
     return Column(
       children: [
         RadioListTile(
-            title: Text("Immediately before taking this test "),
+            title: Text(choice1),
             value: 1,
             groupValue: selectedRadio,
             onChanged: (value) {
               setState(() {
-                lastMedicineAnswer = "Immediately before taking this test ";
+                lastMedicineAnswer = choice1;
                 selectedRadio = value as int;
               });
             }),
         RadioListTile(
-            title: Text("Just after taking this test"),
+            title: Text(choice2),
             value: 2,
             groupValue: selectedRadio,
             onChanged: (value) {
               setState(() {
-                lastMedicineAnswer = "Just after taking this test";
+                lastMedicineAnswer = choice2;
                 selectedRadio = value as int;
               });
             }),
         RadioListTile(
-            title: Text("Another Time"),
+            title: Text(choice3),
             value: 3,
             groupValue: selectedRadio,
             onChanged: (value) {
               setState(() {
-                lastMedicineAnswer = "Another Time";
+                lastMedicineAnswer = choice3;
                 selectedRadio = value as int;
               });
             }),
         RadioListTile(
-            title: Text("I don't take Parkinson medication"),
+            title: Text(choice4),
             value: 4,
             groupValue: selectedRadio,
             onChanged: (value) {
               setState(() {
-                lastMedicineAnswer = "I don't take Parkinson medication";
+                lastMedicineAnswer = choice4;
                 selectedRadio = value as int;
               });
             }),
