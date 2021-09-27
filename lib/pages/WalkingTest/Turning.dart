@@ -14,7 +14,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:csv/csv.dart';
 import 'package:quiver/async.dart';
 
-
 class Turning extends StatefulWidget {
   @override
   _TurningState createState() => _TurningState();
@@ -161,7 +160,7 @@ class _TurningState extends State<Turning> {
 
   PreferredSizeWidget buildAppBar() {
     return AppBar(
-      title: Text("Tremor Test"),
+      title: Text("Turning Test"),
       centerTitle: true,
     );
   }
@@ -185,7 +184,9 @@ class _TurningState extends State<Turning> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-              "1) please stand up if you are sitting;",
+                "1.Turn up your phone's volume so you can hear the instructions while you are walking\n\n"+
+                "2.Put your smartphone in your front pocket if you do not have pockets you can place the phone in the waist band of your pants\n\n"+
+                "3.Please stand up if you are sitting, please turn around and stand still for 30 seconds",
                 style: TextStyle(fontSize: 15.0),
               ),
             ),

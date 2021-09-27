@@ -252,7 +252,9 @@ class _StraightWalkingState extends State<StraightWalking> {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text(
-            "1.Turn up your phone's volume so you can hear the instructions while you are walking\n\n2.Put your smartphone in your pocket and walk straight atleast for 20 steps ",
+            "1.Turn up your phone's volume so you can hear the instructions while you are walking\n\n"+
+            "2.Put your smartphone in your front pocket and  if you do not have pockets you can place the phone in your waist band of your pants\n\n"+
+            "3.Please stand up if you are sitting, please walk straight at least for 20 steps",
             style: TextStyle(fontSize: 15.0),
           ),
         ),

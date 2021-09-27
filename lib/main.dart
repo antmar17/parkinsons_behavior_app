@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:parkinsons_app/pages/AuditoryMemoryTest/AuditorMemory.dart';
 import 'package:parkinsons_app/pages/AuditoryMemoryTest/AuditoryDifficulty.dart';
 import 'package:parkinsons_app/pages/RecordActivity.dart';
-import 'package:parkinsons_app/pages/SurveyTest/Survey.dart';
+import 'package:parkinsons_app/pages/SurveyTest/MDS-UPDRS.dart';
 import 'package:parkinsons_app/pages/TremorTest/Tremor.dart';
 import 'package:parkinsons_app/pages/VoiceRecordingTest/recordmenu.dart';
 import 'package:parkinsons_app/pages/RhythmTest/RhythmIntro.dart';
@@ -64,7 +64,6 @@ class MyApp extends StatelessWidget {
       "/clockdraw":(context) => ClockDraw(),
 
       '/Tremor':(context) => Tremor(),
-      "/Survey":(context) => Survey(),
 
 
     });

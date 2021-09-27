@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:parkinsons_app/services/Util.dart';
+import 'package:parkinsons_app/services/auth.dart';
+import 'package:parkinsons_app/services/database.dart';
 
-class Survey extends StatefulWidget {
+class MDSUPDRS extends StatefulWidget {
+  String participantAnswer;
+  MDSUPDRS({required this.participantAnswer});
+
   @override
-  _SurveyState createState() => _SurveyState();
+  _MDSUPDRSState createState() => _MDSUPDRSState();
 }
 
-class _SurveyState extends State<Survey> {
+class _MDSUPDRSState extends State<MDSUPDRS> {
 
 
   List<int>numInputSelected = [];
@@ -66,7 +72,7 @@ class _SurveyState extends State<Survey> {
       body: SafeArea(
         child: ListView(
           children: [
-            buildInstructions(),
+            //buildInstructions(),
             buildNumInputQuestion(0),
             buildNumInputQuestion(1),
             buildNumInputQuestion(2),
@@ -251,7 +257,7 @@ class _SurveyState extends State<Survey> {
               onChanged: (value) {
                 setState(() {
                   selected[index] = value as int;
-                  answers[index] = value;
+                  answers[index] = value-1;
                 });
               }),
           RadioListTile(
@@ -261,7 +267,7 @@ class _SurveyState extends State<Survey> {
               onChanged: (value) {
                 setState(() {
                   selected[index] = value as int;
-                  answers[index] = value;
+                  answers[index] = value-1;
                 });
               }),
           RadioListTile(
@@ -271,7 +277,7 @@ class _SurveyState extends State<Survey> {
               onChanged: (value) {
                 setState(() {
                   selected[index] = value as int;
-                  answers[index] = value;
+                  answers[index] = value-1;
                 });
               }),
           RadioListTile(
@@ -292,6 +298,18 @@ class _SurveyState extends State<Survey> {
     );
   }
 
+ void onSubmitPressed() async {
+    String uid = AuthService().getCurrentUser().uid;
+    String timestamp = createTimeStamp();
+    Map<String,dynamic> map= {};
+    for(int i = 0;i < answers.length ; i++){
+      map["Question "+(i+1).toString()] = answers[i];
+    }
+    map["Survey Participant"] = widget.participantAnswer;
+    await DataBaseService(uid:uid).userCollection.doc(uid).collection("MDS-UPDRS").doc(timestamp).set(map);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Submission recorded")));
+ }
+
 
   Widget buildSubmitButton(Size screenSize) {
     return Container(
@@ -299,7 +317,7 @@ class _SurveyState extends State<Survey> {
       height: screenSize.height * 0.05,
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       child: ElevatedButton(
-        onPressed: (){},
+        onPressed: onSubmitPressed,
         child: Text("Submit Answers"),
         style: ButtonStyle(
             shape: MaterialStateProperty.all(RoundedRectangleBorder(
