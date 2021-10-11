@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:parkinsons_app/pages/AuditoryMemoryTest/AuditorMemory.dart';
-import 'package:parkinsons_app/pages/AuditoryMemoryTest/AuditoryDifficulty.dart';
+import 'package:parkinsons_app/pages/AuditoryMemoryTest/AuditoryMenu.dart';
+import 'package:parkinsons_app/pages/DrawingTest/DrawingMenu.dart';
 import 'package:parkinsons_app/pages/RecordActivity.dart';
+import 'package:parkinsons_app/pages/SurveyTest/DemoGraphicSurvey.dart';
 import 'package:parkinsons_app/pages/SurveyTest/MDS-UPDRS.dart';
+import 'package:parkinsons_app/pages/SurveyTest/ParticipantQuestion.dart';
 import 'package:parkinsons_app/pages/TremorTest/Tremor.dart';
-import 'package:parkinsons_app/pages/VoiceRecordingTest/recordmenu.dart';
+import 'package:parkinsons_app/pages/VoiceRecordingTest/RecordMenu.dart';
 import 'package:parkinsons_app/pages/RhythmTest/RhythmIntro.dart';
-import 'package:parkinsons_app/pages/VisualMemoryTest/difficulty.dart';
+import 'package:parkinsons_app/pages/VisualMemoryTest/VisualMemoryTestMenu.dart';
 import 'package:parkinsons_app/pages/DrawingTest/clock.dart';
-import 'package:parkinsons_app/pages/VoiceRecordingTest/recordmenu.dart';
+import 'package:parkinsons_app/pages/VoiceRecordingTest/RecordMenu.dart';
 import 'package:parkinsons_app/pages/WalkingTest/WalkingMenu.dart';
 import 'package:parkinsons_app/pages/home.dart';
 import 'package:parkinsons_app/pages/VisualMemoryTest/memory.dart';
@@ -27,45 +30,79 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(initialRoute: '/login', routes: {
+    return MaterialApp(initialRoute: '/login',
+        onGenerateRoute: _getRoute,
+        routes: {
       '/login': (context) => Login(),
      '/signup': (context) => SignUp(),
-
       '/home': (context) => Home(),
-
-      '/rhythmIntro':(context) => RhythmIntro(),
-      '/rhythm': (context) => Rhythm(),
-
-
-      '/walkingMenu': (context) => WalkingMenu(),
-      '/walking': (context) => StraightWalking(),
-
-      '/difficulty': (context) => Difficulty(),
-      '/memory1': (context) => Memory(gridDimension: 2),
-      '/memory2': (context) => Memory(gridDimension: 3),
-      '/memory3': (context) => Memory(gridDimension: 4),
-      '/memory4': (context) => Memory(gridDimension: 5),
-      '/memory5': (context) => Memory(gridDimension: 6),
-
-
-      '/recordmenu': (context) => RecordMenu(),
-      '/recordvowel': (context) => RecordActivity(activityTitle: "Record Vowel Test",instructionText:"Pronounce 'a' and hold for 5 seconds",subInstructionsText: "",),
-      '/recordbreath': (context) => RecordActivity(activityTitle: "Record Breath Test",instructionText:"Take a deep breath three times",subInstructionsText: "Inhale for four seconds each breath!"),
-      '/recordsentence': (context) => RecordActivity(activityTitle:"Record Sentence Test",instructionText:"Read the following sentence:",subInstructionsText: "When the sunlight strikes raindrops in the air they act as a prism and form a rainbow. The rainbow is a division of white light into many beautiful colors."),
-
-      '/auditorydifficulty':(context) => AuditoryDifficulty(),
-      '/auditory3':(context) => AuditoryMemory(mp3Path: "three_words.mp3",recordActivityPath: "/recordauditory3"),
-      '/auditory4':(context) => AuditoryMemory(mp3Path: "four_words.mp3",recordActivityPath: "/recordauditory4"),
-      '/auditory5':(context) => AuditoryMemory(mp3Path: "five_words.mp3",recordActivityPath: "/recordauditory5"),
-      "/recordauditory3":(context) => RecordActivity(activityTitle: "Auditory Memory Test 1", instructionText:"Speak clearly and recall the words you just heard" , subInstructionsText: ""),
-      "/recordauditory4":(context)=>RecordActivity(activityTitle: "Auditory Memory Test 2",instructionText:"Speak clearly and recall the words you just heard" , subInstructionsText: ""),
-      "/recordauditory5":(context)=>RecordActivity(activityTitle: "Auditory Memory Test 3", instructionText:"Speak clearly and recall the words you just heard" , subInstructionsText: ""),
-
-      "/clockdraw":(context) => ClockDraw(),
-
-      '/Tremor':(context) => Tremor(),
 
 
     });
+  }
+
+  MaterialPageRoute _buildRoute(RouteSettings settings, Widget builder) {
+    return new MaterialPageRoute(
+      settings: settings,
+      builder: (context) => builder,
+    );
+  }
+  Route<dynamic>? _getRoute(RouteSettings settings) {
+
+    if (settings.name == '/MDS-UPRDS') {
+      // FooRoute constructor expects SomeObject
+      Map<dynamic,dynamic>arguments = settings.arguments as Map;
+      return _buildRoute(settings, new MDSUPDRS(participantAnswer:arguments['participantAnswer']));
+    }
+
+    if (settings.name == '/DemoGraphicSurvey') {
+      // FooRoute constructor expects SomeObject
+      Map<dynamic,dynamic>arguments = settings.arguments as Map;
+      return _buildRoute(settings, new DemoGraphicSurvey(participantAnswer:arguments['participantAnswer']));
+    }
+
+    if (settings.name == '/RhythmIntro') {
+      // FooRoute constructor expects SomeObject
+      Map<dynamic,dynamic>arguments = settings.arguments as Map;
+      return _buildRoute(settings, new RhythmIntro(medicineAnswer: arguments['medicineAnswer']));
+    }
+
+    if (settings.name == '/VisualMemoryTestMenu') {
+      // FooRoute constructor expects SomeObject
+      Map<dynamic,dynamic>arguments = settings.arguments as Map;
+      return _buildRoute(settings, new VisualMemoryTestMenu(medicineAnswer: arguments['medicineAnswer']));
+    }
+
+    if (settings.name == '/RecordMenu') {
+      // FooRoute constructor expects SomeObject
+      Map<dynamic,dynamic>arguments = settings.arguments as Map;
+      return _buildRoute(settings, new RecordMenu(medicineAnswer: arguments['medicineAnswer']));
+    }
+
+    if (settings.name == '/WalkingMenu') {
+      // FooRoute constructor expects SomeObject
+      Map<dynamic,dynamic>arguments = settings.arguments as Map;
+      return _buildRoute(settings, new WalkingMenu(medicineAnswer: arguments['medicineAnswer']));
+    }
+
+    if (settings.name == '/AuditoryMenu') {
+      // FooRoute constructor expects SomeObject
+      Map<dynamic,dynamic>arguments = settings.arguments as Map;
+      return _buildRoute(settings, new AuditoryMenu(medicineAnswer: arguments['medicineAnswer']));
+    }
+
+    if (settings.name == '/DrawingMenu') {
+      // FooRoute constructor expects SomeObject
+      Map<dynamic,dynamic>arguments = settings.arguments as Map;
+      return _buildRoute(settings, new DrawingMenu(medicineAnswer: arguments['medicineAnswer']));
+    }
+
+    if (settings.name == '/TremorTest') {
+      // FooRoute constructor expects SomeObject
+      Map<dynamic,dynamic>arguments = settings.arguments as Map;
+      return _buildRoute(settings, new Tremor(medicineAnswer: arguments['medicineAnswer']));
+    }
+
+    return null;
   }
 }

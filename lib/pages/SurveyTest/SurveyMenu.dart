@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:parkinsons_app/pages/SurveyTest/MDS-UPDRS.dart';
-import 'package:parkinsons_app/pages/SurveyTest/ParticipantQuestionDemographic.dart';
-import 'package:parkinsons_app/pages/SurveyTest/ParticipantQuestionMDS.dart';
-import 'package:parkinsons_app/services/Util.dart';
+import 'package:parkinsons_app/pages/SurveyTest/MMSE.dart';
+import 'package:parkinsons_app/pages/SurveyTest/ParticipantQuestion.dart';
 import 'package:parkinsons_app/widgets/WideButton.dart';
 
 
@@ -38,19 +36,21 @@ class _SurveyMenuState extends State<SurveyMenu> {
                   color: Colors.blue,
                   buttonText: "MDS-UPDRS Survey",
                   onPressed: () {
-                    Navigator.push(context,MaterialPageRoute(builder: (context) => ParticipantQuestionMDS() ));
+                    Navigator.push(context,MaterialPageRoute(builder: (context) => ParticipantQuestion(routeNameOfNextWidget: '/MDS-UPRDS',) ));
                   }),
               WideButton(
                   color: Colors.blue,
                   buttonText: "MMSE Survey",
                   onPressed: () {
-                    Navigator.push(context,MaterialPageRoute(builder: (context) => ParticipantQuestionDemographic() ));
+
+                    Navigator.push(context,MaterialPageRoute(builder: (context) => MMSE()));
                   }),
               WideButton(
                   color: Colors.blue,
                   buttonText: "Demographic Survey",
                   onPressed: () {
-                    Navigator.push(context,MaterialPageRoute(builder: (context) => ParticipantQuestionDemographic() ));
+
+                    Navigator.push(context,MaterialPageRoute(builder: (context) => ParticipantQuestion(routeNameOfNextWidget: '/DemoGraphicSurvey',) ));
                   }),
             ],
           ),

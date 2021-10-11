@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:parkinsons_app/pages/RecordActivity.dart';
 import 'package:quiver/async.dart';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -10,10 +11,11 @@ import 'package:record_mp3/record_mp3.dart';
 
 // ignore: must_be_immutable
 class AuditoryMemory extends StatefulWidget {
-  String recordActivityPath;
+  String medicineAnswer;
   String mp3Path;
+  String activityTitle;
 
-  AuditoryMemory( {required this.recordActivityPath,required this.mp3Path});
+  AuditoryMemory( {required this.medicineAnswer,required this.mp3Path,required this.activityTitle});
 
   @override
   _AuditoryMemoryState createState() => _AuditoryMemoryState();
@@ -209,7 +211,7 @@ class _AuditoryMemoryState extends State<AuditoryMemory> {
     });
     sub.onDone(() {
       if(seconds== 0) {
-        Navigator.pushReplacementNamed(context, widget.recordActivityPath);
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RecordActivity(medicineAnswer: widget.medicineAnswer, activityTitle: widget.activityTitle, instructionText: "Speak clearly and recall the words you just heard", subInstructionsText: "")));
 
       }
     });

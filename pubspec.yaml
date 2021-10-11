@@ -51,6 +51,8 @@ dependencies:
   path_provider: ^2.0.2
 
   crypt: ^4.0.1
+  image_painter: ^0.4.0
+
 
 
 

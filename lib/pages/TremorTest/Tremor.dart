@@ -13,6 +13,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:quiver/async.dart';
 
 class Tremor extends StatefulWidget {
+  String medicineAnswer;
+  Tremor({required this.medicineAnswer});
+
   @override
   _TremorState createState() => _TremorState();
 }
@@ -145,7 +148,9 @@ class _TremorState extends State<Tremor> {
 
     //Upload to firebase
     String uid = AuthService().getCurrentUser().uid;
-    await DataBaseService(uid: uid).uploadFile(file, "Tremor Test", ".csv");
+    DataBaseService db = DataBaseService(uid: uid);
+    await db.uploadFile(file, "Tremor Test", ".csv");
+    db.updateGeneric("Tremor Test", widget.medicineAnswer);
     resetData();
   }
 

@@ -15,6 +15,9 @@ import 'package:csv/csv.dart';
 
 
 class StraightWalking extends StatefulWidget {
+  String medicineAnswer;
+  StraightWalking({required this.medicineAnswer});
+
   @override
   _StraightWalkingState createState() => _StraightWalkingState();
 }
@@ -58,7 +61,6 @@ class _StraightWalkingState extends State<StraightWalking> {
     for (final subscription in _streamSubscriptions) {
       subscription.cancel();
     }
-    lastMedicineAnswer = "";
   }
 
   @override
@@ -138,7 +140,9 @@ class _StraightWalkingState extends State<StraightWalking> {
 
     //Upload to firebase
     String uid = AuthService().getCurrentUser().uid;
-    DataBaseService(uid:uid).uploadFile(file, "Straight Walking Test",".csv");
+    DataBaseService db = DataBaseService(uid: uid);
+    db.uploadFile(file, "Straight Walking Test",".csv");
+    db.updateGeneric("Straight Walking Test", widget.medicineAnswer);
     resetData();
 
 

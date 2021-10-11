@@ -49,11 +49,10 @@ class _MDSUPDRSState extends State<MDSUPDRS> {
     super.initState();
     for (int i = 0; i < 21; i++) {
       selected.add(0);
-    }
-
-    for (int i = 0; i < 21; i++) {
       answers.add(-1);
     }
+    answers[0] = 0;
+
   }
 
   @override
@@ -73,7 +72,7 @@ class _MDSUPDRSState extends State<MDSUPDRS> {
         child: ListView(
           children: [
             //buildInstructions(),
-            buildNumInputQuestion(0),
+            buildSliderQuestion(screenSize,0),
             buildNumInputQuestion(1),
             buildNumInputQuestion(2),
             buildNumInputQuestion(3),
@@ -116,6 +115,61 @@ class _MDSUPDRSState extends State<MDSUPDRS> {
     );
   }
 
+  Widget buildSliderQuestion(Size screenSize,int index) {
+    String Question = questions[index];
+    int QuestionNumber = index + 1;
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+      child: Column(
+        children: [
+          Divider(
+            thickness: 2.0,
+          ),
+          Text(
+            "QUESTION " + QuestionNumber.toString(),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+
+          Container(
+              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5),
+              child: Text(
+                Question,
+                style: TextStyle(fontSize: 15),
+              )),
+          Container(
+            width: screenSize.width * 0.7,
+            height: screenSize.height * 0.05,
+            decoration: BoxDecoration(
+                color: Colors.grey,
+                borderRadius: BorderRadius.all(Radius.circular(20.0))),
+            child: Row(
+              children: [
+                Expanded(child: Slider(
+                  min: 0.0,
+                  max: 100.0,
+                  value: answers[index].toDouble(),
+                  onChanged: (value){
+                    setState(() {
+                      answers[index] = value.toInt();
+                    });
+                  },
+                  inactiveColor: Colors.white,
+                  activeColor: Colors.blue,)),
+                Container(
+                    padding: EdgeInsets.symmetric(horizontal: 5),
+                    child:Text(answers[index].toString()))
+              ],
+            ),
+          ),
+          Divider(
+            thickness: 2.0,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget buildNumInputQuestion(int index) {
     String Question = questions[index];
     int QuestionNumber = index + 1;
@@ -123,6 +177,7 @@ class _MDSUPDRSState extends State<MDSUPDRS> {
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
         child: Column(
           children: [
+
 
             Text(
               "QUESTION " + QuestionNumber.toString(),
@@ -303,6 +358,10 @@ class _MDSUPDRSState extends State<MDSUPDRS> {
     String timestamp = createTimeStamp();
     Map<String,dynamic> map= {};
     for(int i = 0;i < answers.length ; i++){
+      if(answers[i] == -1){
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please answer all questions")));
+        return;
+      }
       map["Question "+(i+1).toString()] = answers[i];
     }
     map["Survey Participant"] = widget.participantAnswer;

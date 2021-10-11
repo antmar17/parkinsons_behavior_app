@@ -6,18 +6,15 @@ import 'package:parkinsons_app/widgets/WideButton.dart';
 import 'Turning.dart';
 
 class WalkingMenu extends StatefulWidget {
+  String medicineAnswer;
+  WalkingMenu({required this.medicineAnswer});
+
   @override
   _WalkingMenuState createState() => _WalkingMenuState();
 }
 
 class _WalkingMenuState extends State<WalkingMenu> {
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    lastMedicineAnswer = "";
-  }
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
@@ -33,10 +30,10 @@ class _WalkingMenuState extends State<WalkingMenu> {
             mainAxisAlignment: MainAxisAlignment.center,
               children: [
             WideButton(color: Colors.blue, buttonText: "Straight Walking Test", onPressed: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => StraightWalking() ));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => StraightWalking(medicineAnswer: widget.medicineAnswer,) ));
             }),
             WideButton(color: Colors.blue, buttonText: "Turning Walking Test", onPressed: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => Turning() ));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Turning(medcineAnswer: widget.medicineAnswer,) ));
             }),
           ]),
         ),
@@ -46,7 +43,7 @@ class _WalkingMenuState extends State<WalkingMenu> {
 
   PreferredSizeWidget buildAppBar() {
     return AppBar(
-      title: Text("Walking Test"),
+      title: Text("Walking Test",style: TextStyle(fontSize: 15.0),),
       centerTitle: true,
     );
   }

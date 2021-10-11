@@ -4,6 +4,9 @@ import 'package:parkinsons_app/pages/RhythmTest/rhythm.dart';
 import 'package:parkinsons_app/services/Util.dart';
 
 class RhythmIntro extends StatelessWidget {
+  String medicineAnswer;
+
+  RhythmIntro({required this.medicineAnswer});
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +76,7 @@ class RhythmIntro extends StatelessWidget {
         onPressed: () {
           //Navigator.of(context).pushReplacementNamed('/rhythm');
 
-          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Rhythm()));
+          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Rhythm(medicineAnswer: medicineAnswer,)));
         });
   }
 }

@@ -49,39 +49,39 @@ class _HomeState extends State<Home> {
 
 
                     WideButton(color: Colors.blue, buttonText: "Rhythm Test", onPressed: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => MedicineQuestion(nextActivityRoute: '/rhythmIntro')));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => MedicineQuestion(routeNameOfNextWidget: '/RhythmIntro')));
                       //Navigator.pushNamed(context, '/rhythmIntro');
                     }),
 
                     WideButton(color: Colors.blue, buttonText: "Visual Memory Test", onPressed: (){
 
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => MedicineQuestion(nextActivityRoute: '/difficulty')));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => MedicineQuestion(routeNameOfNextWidget: '/VisualMemoryTestMenu')));
                       //  Navigator.pushNamed(context, '/difficulty');
                     }),
 
                     WideButton(color: Colors.blue, buttonText: "Voice Recording Test", onPressed: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => MedicineQuestion(nextActivityRoute: '/recordmenu')));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => MedicineQuestion(routeNameOfNextWidget: '/RecordMenu')));
                       //  Navigator.pushNamed(context, '/recordmenu');
                     }),
 
                     WideButton(color: Colors.blue, buttonText: "Walking Test", onPressed: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => MedicineQuestion(nextActivityRoute: '/walkingMenu')));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => MedicineQuestion(routeNameOfNextWidget: '/WalkingMenu')));
                       //   Navigator.pushNamed(context, '/walking');
                     }),
 
                     WideButton(color: Colors.blue, buttonText: "Auditory Memory Test", onPressed: (){
 
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => MedicineQuestion(nextActivityRoute: '/auditorydifficulty')));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => MedicineQuestion(routeNameOfNextWidget: '/AuditoryMenu')));
                       //Navigator.pushNamed(context, '/auditorydifficulty');
                     }),
 
                     WideButton(color: Colors.blue, buttonText: "Drawing Test", onPressed: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => MedicineQuestion(nextActivityRoute: '/clockdraw')));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => MedicineQuestion(routeNameOfNextWidget: '/DrawingMenu')));
                       //Navigator.pushNamed(context, '/clockdraw');
                     }),
 
                     WideButton(color: Colors.blue, buttonText: "Tremor Test", onPressed: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => MedicineQuestion(nextActivityRoute: '/Tremor')));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => MedicineQuestion(routeNameOfNextWidget: '/TremorTest')));
                       //Navigator.pushNamed(context, '/clockdraw');
                     }),
 

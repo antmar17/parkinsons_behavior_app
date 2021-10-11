@@ -13,12 +13,13 @@ import 'package:audioplayers/audioplayers.dart';
 
 // ignore: must_be_immutable
 class RecordActivity extends StatefulWidget {
+  String medicineAnswer;
   String activityTitle;
   String instructionText;
   String subInstructionsText;
 
   RecordActivity(
-      {required this.activityTitle,required this.instructionText, required this.subInstructionsText});
+      {required this.medicineAnswer,required this.activityTitle,required this.instructionText, required this.subInstructionsText});
 
   @override
   _RecordActivityState createState() => _RecordActivityState();
@@ -131,8 +132,11 @@ class _RecordActivityState extends State<RecordActivity> {
       //audioPlayer.play(recordFilePath, isLocal: true);
       String uid = AuthService().getCurrentUser().uid.toString();
       File file = File(recordFilePath);
+      DataBaseService db = DataBaseService(uid: uid);
 
-      DataBaseService(uid: uid).uploadFile(file, widget.activityTitle, ".mp3");
+      db.uploadFile(file, widget.activityTitle, ".mp3");
+      db.updateGeneric(widget.activityTitle, widget.medicineAnswer);
+
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Recording Submitted!")));
       Navigator.of(context).pop();

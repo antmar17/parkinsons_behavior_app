@@ -12,6 +12,9 @@ import 'dart:io';
 
 class Rhythm extends StatefulWidget {
 
+  String medicineAnswer;
+  Rhythm({required this.medicineAnswer});
+
   @override
   _RhythmState createState() => _RhythmState();
 }
@@ -54,12 +57,6 @@ class _RhythmState extends State<Rhythm> {
     // TODO: implement initState
     super.initState();
     checkPermissions();
-  }
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    lastMedicineAnswer = "";
   }
 
 
@@ -235,12 +232,11 @@ class _RhythmState extends State<Rhythm> {
       _leftActivated = false;
       _rightActivated = false;
 
-      sub.cancel();
+      //sub.cancel();
       //send up to firebase firestore
-      await DataBaseService(uid: _authService.getCurrentUser().uid).updateUserRythmGame(_amountPressed, _totalDistance);
+      DataBaseService(uid: AuthService().getCurrentUser().uid).updateUserRythmGame(_amountPressed, _totalDistance,widget.medicineAnswer);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You have completed the Rythm game good job!")));
       writeDataToCsv();
-      Navigator.pop(context);
     });
   }
 

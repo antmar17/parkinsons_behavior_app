@@ -15,13 +15,15 @@ import 'package:csv/csv.dart';
 import 'package:quiver/async.dart';
 
 class Turning extends StatefulWidget {
+  String medcineAnswer;
+  Turning({required this.medcineAnswer});
   @override
   _TurningState createState() => _TurningState();
 }
 
 class _TurningState extends State<Turning> {
-  static const maxSeconds = 30;
-  int seconds = maxSeconds;
+  int maxSeconds = 3;
+  int seconds = 3;
   CountdownTimer? _timer = null;
   bool testStarted = false;
 
@@ -32,7 +34,55 @@ class _TurningState extends State<Turning> {
   List<double>? _gyroscopeValues;
   List<double>? _magnetometerValues;
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
+  List<String>instructionsMP3 = ['turnaround.mp3','standstill_30.mp3'];
+  List<int> waitTimes= [5,30];
+  int masterIndex = 0;
 
+
+
+  AudioPlayer? audioPlayer;
+  AudioCache? audioCache;
+
+
+
+
+  void startCountDownTimer() {
+    _timer = new CountdownTimer(
+      new Duration(seconds: maxSeconds),
+      new Duration(seconds: 1),
+    );
+
+    // ignore: cancel_subscriptions
+    var sub = _timer!.listen(null);
+    sub.onData((duration) {
+      setState(() {
+        seconds = maxSeconds - duration.elapsed.inSeconds;
+      });
+    });
+    sub.onDone(() {
+      if(masterIndex < waitTimes.length){
+
+        audioCache!.play(instructionsMP3[masterIndex]);
+        maxSeconds = waitTimes[masterIndex];
+        masterIndex++;
+        startCountDownTimer();
+      }
+      else {
+        audioCache!.play('recording_finished.mp3');
+        writeDataToCsv();
+        seconds = maxSeconds;
+        testStarted = false;
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Turning Test completed!")));
+        masterIndex = 0;
+      }
+    });
+  }
+
+  void initAudio(){
+    audioPlayer = AudioPlayer();
+    audioCache = AudioCache(fixedPlayer: audioPlayer);
+  }
 
   @override
   void initState() {
@@ -41,6 +91,7 @@ class _TurningState extends State<Turning> {
 
     checkPermissions();
     initSensorSate();
+    initAudio();
   }
 
   @override
@@ -60,8 +111,6 @@ class _TurningState extends State<Turning> {
               SizedBox(height: screenSize.height * 0.025,),
               buildStartButton(),
               SizedBox(height: screenSize.height * 0.025,),
-              if(testStarted) Text("Keep Still!",style: TextStyle(fontSize: 20),),
-              if(testStarted) SizedBox(height: screenSize.height * 0.025,),
               if (testStarted) buildTime() ,
             ],
           ),
@@ -115,7 +164,9 @@ class _TurningState extends State<Turning> {
 
     //Upload to firebase
     String uid = AuthService().getCurrentUser().uid;
-    await DataBaseService(uid:uid).uploadFile(file, "Tremor Test",".csv");
+    DataBaseService db = DataBaseService(uid: uid);
+    db.uploadFile(file, "Turning Test",".csv");
+    db.updateGeneric('Turning Test', widget.medcineAnswer);
     resetData();
 
   }
@@ -196,26 +247,7 @@ class _TurningState extends State<Turning> {
     );
   }
 
-  void startCountDownTimer() {
-    _timer = new CountdownTimer(
-      new Duration(seconds: maxSeconds),
-      new Duration(seconds: 1),
-    );
 
-    // ignore: cancel_subscriptions
-    var sub = _timer!.listen(null);
-    sub.onData((duration) {
-      setState(() {
-        seconds = maxSeconds - duration.elapsed.inSeconds;
-      });
-    });
-    sub.onDone(() {
-      writeDataToCsv();
-      seconds = maxSeconds;
-      testStarted = false;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Turning Test completed!")));
-    });
-  }
 
   Widget buildTime() {
     return SizedBox(
@@ -240,10 +272,13 @@ class _TurningState extends State<Turning> {
   }
 
   Widget buildStartButton() {
-    return WideButton(color: Colors.blue, buttonText: "Start test", onPressed: (){
+    return WideButton(color: testStarted?Colors.red:Colors.blue, buttonText: testStarted?"Stop Test":"Start test", onPressed: (){
       if(!testStarted){
         testStarted = true;
-        startCountDownTimer();
+
+
+          startCountDownTimer();
+
       }
     });
     //return ElevatedButton(

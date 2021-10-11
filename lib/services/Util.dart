@@ -1,5 +1,4 @@
 /***This file is for commonly used Functions and Constants ***/
-String lastMedicineAnswer = "";
 String createTimeStamp(){
   DateTime now = new DateTime.now();
   DateTime date = new DateTime(

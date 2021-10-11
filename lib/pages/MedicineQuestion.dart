@@ -6,9 +6,9 @@ import 'package:parkinsons_app/services/Util.dart';
 import 'package:parkinsons_app/services/auth.dart';
 
 class MedicineQuestion extends StatefulWidget {
-  String nextActivityRoute;
+  String routeNameOfNextWidget;
 
-  MedicineQuestion({required this.nextActivityRoute});
+  MedicineQuestion({required this.routeNameOfNextWidget});
 
   @override
   _MedicineQuestionState createState() => _MedicineQuestionState();
@@ -16,6 +16,7 @@ class MedicineQuestion extends StatefulWidget {
 
 class _MedicineQuestionState extends State<MedicineQuestion> {
   int selectedRadio = 0;
+  String medicineAnswer= "";
 
   @override
   void initState() {
@@ -90,7 +91,7 @@ class _MedicineQuestionState extends State<MedicineQuestion> {
             groupValue: selectedRadio,
             onChanged: (value) {
               setState(() {
-                lastMedicineAnswer = choice1;
+                medicineAnswer = choice1;
                 selectedRadio = value as int;
               });
             }),
@@ -100,7 +101,7 @@ class _MedicineQuestionState extends State<MedicineQuestion> {
             groupValue: selectedRadio,
             onChanged: (value) {
               setState(() {
-                lastMedicineAnswer = choice2;
+                medicineAnswer = choice2;
                 selectedRadio = value as int;
               });
             }),
@@ -110,7 +111,7 @@ class _MedicineQuestionState extends State<MedicineQuestion> {
             groupValue: selectedRadio,
             onChanged: (value) {
               setState(() {
-                lastMedicineAnswer = choice3;
+                medicineAnswer = choice3;
                 selectedRadio = value as int;
               });
             }),
@@ -120,7 +121,7 @@ class _MedicineQuestionState extends State<MedicineQuestion> {
             groupValue: selectedRadio,
             onChanged: (value) {
               setState(() {
-                lastMedicineAnswer = choice4;
+                medicineAnswer = choice4;
                 selectedRadio = value as int;
               });
             }),
@@ -142,8 +143,8 @@ class _MedicineQuestionState extends State<MedicineQuestion> {
   }
 
   void handleNextPressed() {
-    if(lastMedicineAnswer != ""){
-      Navigator.of(context).pushReplacementNamed(widget.nextActivityRoute);
+    if(medicineAnswer != ""){
+      Navigator.of(context).pushReplacementNamed(widget.routeNameOfNextWidget,arguments: {'medicineAnswer':medicineAnswer});
     }
     else{
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please answer the question"),));

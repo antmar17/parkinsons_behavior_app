@@ -6,14 +6,16 @@ import 'package:parkinsons_app/pages/SurveyTest/MDS-UPDRS.dart';
 import 'package:parkinsons_app/services/Util.dart';
 import 'package:parkinsons_app/services/auth.dart';
 
-class ParticipantQuestionMDS extends StatefulWidget {
+class ParticipantQuestion extends StatefulWidget {
+  String routeNameOfNextWidget;
+  ParticipantQuestion({required this.routeNameOfNextWidget});
 
 
   @override
-  _ParticipantQuestionMDSState createState() => _ParticipantQuestionMDSState();
+  _ParticipantQuestionState createState() => _ParticipantQuestionState();
 }
 
-class _ParticipantQuestionMDSState extends State<ParticipantQuestionMDS> {
+class _ParticipantQuestionState extends State<ParticipantQuestion> {
   int selectedRadio = 0;
   String participantAnswer = "";
 
@@ -122,7 +124,7 @@ class _ParticipantQuestionMDSState extends State<ParticipantQuestionMDS> {
 
   void handleNextPressed() {
     if(participantAnswer != ""){
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => MDSUPDRS(participantAnswer: participantAnswer,)));
+      Navigator.of(context).pushReplacementNamed(widget.routeNameOfNextWidget,arguments: {'participantAnswer':participantAnswer});
     }
     else{
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please answer the question"),));
